@@ -2155,11 +2155,14 @@ The `.transform` method can simultaneously validate and transform the value. Thi
 
 As with `.superRefine`, the transform function receives a `ctx` object with an `addIssue` method that can be used to register validation issues.
 
+Always make sure to add `fatal: true` when returning abnormal values (such as `z.NEVER`) or parsing will continue and passes that abnormal value to further operations.
+
 ```ts
 const numberInString = z.string().transform((val, ctx) => {
   const parsed = parseInt(val);
   if (isNaN(parsed)) {
     ctx.addIssue({
+      fatal: true, // Ensure abort parsing.
       code: z.ZodIssueCode.custom,
       message: "Not a number",
     });
