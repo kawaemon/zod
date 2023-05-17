@@ -4312,6 +4312,7 @@ export class ZodEffects<
             `Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.`
           );
         }
+        if (status.value === "aborted") return INVALID;
 
         return { status: status.value, value: result };
       } else {

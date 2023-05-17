@@ -246,3 +246,26 @@ test("async short circuit on dirty", async () => {
     expect(result2.error.issues[0].code).toEqual(z.ZodIssueCode.invalid_type);
   }
 });
+
+test("abort if fatal issue is added", () => {
+  const issue = {
+    message: "bad",
+    code: z.ZodIssueCode.custom,
+    fatal: true,
+  } as const;
+  const parsed = z
+    .string()
+    .transform((value, ctx) => {
+      ctx.addIssue(issue);
+      return value;
+    })
+    .refine((_x) => {
+      throw new Error("I should not be called!");
+    })
+    .safeParse("a");
+
+  expect(parsed.success).toBe(false);
+  if (!parsed.success) {
+    expect(parsed.error.issues).toStrictEqual([{ path: [], ...issue }]);
+  }
+});
